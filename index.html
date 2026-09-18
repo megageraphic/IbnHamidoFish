@@ -6,6 +6,8 @@
     <title>منيو مطعم سمك ابن حميدو - العاشر من رمضان</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Cairo -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script>
@@ -41,6 +43,21 @@
             background-color: #0f4c81 !important;
             color: white !important;
             box-shadow: 0 2px 4px -1px rgba(15, 76, 129, 0.3);
+        }
+        .footer-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fca311;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        .footer-btn:hover {
+            background-color: #fca311;
+            color: #08233f;
         }
     </style>
 </head>
@@ -97,16 +114,20 @@
                     ⚖️
                 </div>
                 <div>
-                    <p class="text-[10px] text-gray-300">مجموع الوزن الإجمالي</p>
+                    <p class="text-[10px] text-gray-300">مجموع الكمية / الوزن</p>
                     <p id="total-weight-display" class="text-xs md:text-sm font-black text-seaCyan">0 جرام</p>
                 </div>
                 <div class="border-r border-white/25 pr-3 mr-1">
-                    <p class="text-[10px] text-gray-300">إجمالي المبلغ</p>
+                    <p class="text-[10px] text-gray-300">إجمالي المبلغ المطلوب</p>
                     <p id="total-price-display" class="text-xs md:text-sm font-black text-accentGold">0 ج.م</p>
                 </div>
             </div>
             
-            <div class="flex items-center">
+            <div class="flex items-center gap-2">
+                <!-- زر حذف الطلبات وإفراغ السلة -->
+                <button onclick="clearCart()" class="bg-red-600 hover:bg-red-700 text-white px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center justify-center text-xs md:text-sm cursor-pointer" title="حذف كل الطلبات">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
                 <button onclick="addToCart()" class="bg-accentGold hover:bg-amber-500 text-deepNavy font-black px-6 py-2 rounded-xl transition-all shadow-md flex items-center gap-1 text-xs md:text-sm cursor-pointer">
                     إضافة إلى السلة
                 </button>
@@ -114,11 +135,16 @@
         </div>
     </div>
 
-    <!-- Footer (Compact) -->
-    <footer class="bg-deepNavy text-white py-4 border-t border-oceanBlue/30 mb-14 text-center">
-        <div class="container mx-auto px-4">
-            <p class="text-xs text-accentGold font-bold">مطعم سمك ابن حميدو - العاشر من رمضان</p>
-            <p class="text-[10px] text-gray-400 mt-1">© 2026 جميع الحقوق محفوظة</p>
+    <!-- Footer -->
+    <footer class="bg-deepNavy text-white py-6 border-t border-oceanBlue/30 mb-14 text-center">
+        <div class="container mx-auto px-4 flex flex-col items-center justify-center gap-3">
+            <p class="text-xs md:text-sm text-gray-300">&copy; جميع الحقوق محفوظة - مطعم اسماك ابن حميدو</p>
+            <div class="footer-credits flex items-center justify-center gap-3 text-xs">
+                <span class="text-gray-400">تصميم بواسطة</span>
+                <img src="100.png" alt="شعار التصميم" class="w-6 h-6 object-contain">
+                <a href="tel:01010255123" class="footer-btn" title="اتصال هاتفي"><i class="fa-solid fa-phone"></i></a>
+                <a href="https://wa.me/201010255123" target="_blank" class="footer-btn" title="مراسلة عبر الواتساب"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
         </div>
     </footer>
 
@@ -220,7 +246,7 @@
                 "nameAr": "شوربة سي فود ريتش",
                 "nameEng": "Rich Seafood Soup",
                 "desc": "تشكيلة بحرية غنية من الجمبري والسبيط والسمك",
-                "price": 0,
+                "price": 110,
                 "unit": "ج.م",
                 "status": "متوفر",
                 "cookingMethods": [
@@ -241,10 +267,55 @@
         ];
 
         let currentCategory = 'الأسماك';
+        let userSelections = {};
+
+        // استرجاع السلة والخيارات القديمة عند فتح الصفحة لأول مرة
+        function loadSavedCartToSelections() {
+            const savedCartStr = localStorage.getItem('ibnHameedoCart');
+            if (savedCartStr) {
+                try {
+                    const savedCart = JSON.parse(savedCartStr);
+                    if (savedCart && savedCart.items) {
+                        savedCart.items.forEach(cartItem => {
+                            menuData.forEach(item => {
+                                if (item.nameAr === cartItem.name && item.cookingMethods) {
+                                    item.cookingMethods.forEach(m => {
+                                        const mName = typeof m === 'object' ? m.name : m;
+                                        if (cartItem.methods.includes(mName)) {
+                                            const inputKey = `${item.nameAr}_${mName}`;
+                                            userSelections[inputKey] = cartItem.weight;
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    }
+                } catch (e) {
+                    console.error("خطأ في استرجاع بيانات السلة", e);
+                }
+            }
+        }
+
+        // دالة حذف وإفراغ السلة بالكامل
+        function clearCart() {
+            if (confirm('هل أنت متأكد من حذف جميع الطلبات وإفراغ السلة؟')) {
+                localStorage.removeItem('ibnHameedoCart');
+                userSelections = {};
+                
+                // تفريغ خانات الإدخال الظاهرة حالياً على الشاشة
+                document.querySelectorAll('.weight-input').forEach(input => {
+                    input.value = '';
+                });
+                
+                calculateTotals();
+            }
+        }
 
         function renderMenu(categoryToFilter = 'الأسماك') {
             const container = document.getElementById('menu-container');
             if (!container) return;
+            
+            saveCurrentInputs();
             container.innerHTML = '';
 
             const filteredItems = menuData.filter(item => item.category === categoryToFilter);
@@ -269,6 +340,8 @@
                     item.cookingMethods.forEach(m => {
                         const methodName = typeof m === 'object' ? m.name : m;
                         const methodPrice = typeof m === 'object' ? m.price : item.price;
+                        const inputKey = `${item.nameAr}_${methodName}`;
+                        const savedVal = userSelections[inputKey] || '';
                         
                         methodsHTML += `
                             <div class="bg-gray-50 hover:bg-blue-50/40 p-2.5 rounded-xl border border-gray-200 flex items-center justify-between gap-2 transition-all">
@@ -277,8 +350,8 @@
                                     ${typeof m === 'object' ? `<span class="text-[10px] text-accentGold font-bold">${methodPrice} ج.م</span>` : ''}
                                 </div>
                                 <div class="inline-flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-sm">
-                                    <input type="number" step="${item.category === 'الأسماك' || item.category === 'الجمبري' ? 50 : 1}" min="0" placeholder="0" oninput="calculateTotals()" class="weight-input w-20 text-center font-bold text-oceanBlue focus:outline-none bg-transparent text-xs" data-name="${item.nameAr}" data-method="${methodName}" data-price="${methodPrice}" data-unit="${item.unit || 'ج.م'}">
-                                    <span class="text-[10px] text-gray-500">${item.category === 'الأسماك' || item.category === 'الجمبري' ? 'جم' : 'عدد'}</span>
+                                    <input type="number" step="${item.category === 'الأسماك' || item.category === 'الجمبري' ? 50 : 1}" min="0" placeholder="0" value="${savedVal}" oninput="saveCurrentInputs(); calculateTotals()" class="weight-input w-20 text-center font-bold text-oceanBlue focus:outline-none bg-transparent text-xs" data-name="${item.nameAr}" data-method="${methodName}" data-price="${methodPrice}" data-category="${item.category}" data-unit="${item.unit || 'ج.م'}" data-key="${inputKey}">
+                                    <span class="text-[10px] font-bold text-oceanBlue">${item.category === 'الأسماك' || item.category === 'الجمبري' ? 'جم' : 'عدد'}</span>
                                 </div>
                             </div>
                         `;
@@ -310,24 +383,50 @@
 
             sectionHTML += `</div></div>`;
             container.innerHTML += sectionHTML;
+            calculateTotals();
+        }
+
+        function saveCurrentInputs() {
+            const inputs = document.querySelectorAll('.weight-input');
+            inputs.forEach(input => {
+                const key = input.getAttribute('data-key');
+                if (key) {
+                    userSelections[key] = input.value;
+                }
+            });
         }
 
         function calculateTotals() {
-            const inputs = document.querySelectorAll('.weight-input');
+            saveCurrentInputs();
             let totalWeightOrCount = 0;
             let totalPrice = 0;
 
-            inputs.forEach(input => {
-                const val = parseFloat(input.value);
-                const itemPriceVal = parseFloat(input.getAttribute('data-price')) || 0;
-                const unit = input.getAttribute('data-unit') || '';
-
+            Object.keys(userSelections).forEach(key => {
+                const val = parseFloat(userSelections[key]);
                 if (!isNaN(val) && val > 0) {
-                    totalWeightOrCount += val;
-                    if (unit.includes('كيلو')) {
-                        totalPrice += (itemPriceVal / 1000) * val;
-                    } else {
-                        totalPrice += itemPriceVal * val;
+                    let matchedCategory = '';
+                    let matchedPrice = 0;
+
+                    menuData.forEach(item => {
+                        if (item.cookingMethods) {
+                            item.cookingMethods.forEach(m => {
+                                const mName = typeof m === 'object' ? m.name : m;
+                                const mPrice = typeof m === 'object' ? m.price : item.price;
+                                if (`${item.nameAr}_${mName}` === key) {
+                                    matchedCategory = item.category;
+                                    matchedPrice = mPrice;
+                                }
+                            });
+                        }
+                    });
+
+                    if (matchedCategory) {
+                        totalWeightOrCount += val;
+                        if (matchedCategory === 'الأسماك' || matchedCategory === 'الجمبري') {
+                            totalPrice += (matchedPrice / 1000) * val;
+                        } else {
+                            totalPrice += matchedPrice * val;
+                        }
                     }
                 }
             });
@@ -350,41 +449,57 @@
         }
 
         function addToCart() {
-            const inputs = document.querySelectorAll('.weight-input');
+            saveCurrentInputs();
             let cartItems = [];
             let totalWeightOrCount = 0;
             let grandTotal = 0;
 
-            inputs.forEach(input => {
-                const val = parseFloat(input.value);
-                const itemPriceVal = parseFloat(input.getAttribute('data-price')) || 0;
-                const unit = input.getAttribute('data-unit') || '';
-
+            Object.keys(userSelections).forEach(key => {
+                const val = parseFloat(userSelections[key]);
                 if (!isNaN(val) && val > 0) {
-                    const name = input.getAttribute('data-name');
-                    const method = input.getAttribute('data-method');
-                    
-                    let itemPrice = 0;
-                    if (unit.includes('كيلو')) {
-                        itemPrice = (itemPriceVal / 1000) * val;
-                    } else {
-                        itemPrice = itemPriceVal * val;
-                    }
+                    let matchedName = '';
+                    let matchedMethod = '';
+                    let matchedCategory = '';
+                    let matchedPrice = 0;
 
-                    totalWeightOrCount += val;
-                    grandTotal += itemPrice;
-
-                    cartItems.push({
-                        name: name,
-                        weight: val,
-                        methods: [method],
-                        price: itemPrice
+                    menuData.forEach(item => {
+                        if (item.cookingMethods) {
+                            item.cookingMethods.forEach(m => {
+                                const mName = typeof m === 'object' ? m.name : m;
+                                const mPrice = typeof m === 'object' ? m.price : item.price;
+                                if (`${item.nameAr}_${mName}` === key) {
+                                    matchedCategory = item.category;
+                                    matchedPrice = mPrice;
+                                    matchedName = item.nameAr;
+                                    matchedMethod = mName;
+                                }
+                            });
+                        }
                     });
+
+                    if (matchedCategory) {
+                        let itemPrice = 0;
+                        if (matchedCategory === 'الأسماك' || matchedCategory === 'الجمبري') {
+                            itemPrice = (matchedPrice / 1000) * val;
+                        } else {
+                            itemPrice = matchedPrice * val;
+                        }
+
+                        totalWeightOrCount += val;
+                        grandTotal += itemPrice;
+
+                        cartItems.push({
+                            name: matchedName,
+                            weight: val,
+                            methods: [matchedMethod],
+                            price: itemPrice
+                        });
+                    }
                 }
             });
 
             if (cartItems.length === 0) {
-                alert('يرجى تحديد الكمية أو الوزن لأي صنف أولاً!');
+                alert('يرجى تحديد الكمية أو الوزن لأي صنف في أي قسم أولاً!');
                 return;
             }
 
@@ -426,6 +541,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            loadSavedCartToSelections();
             renderMenu('الأسماك');
         });
     </script>

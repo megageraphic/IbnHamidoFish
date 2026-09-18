@@ -38,7 +38,11 @@
     <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 md:p-10">
         
         <!-- Header -->
-        <div class="text-center border-b border-gray-200 pb-6 mb-6">
+        <div class="text-center border-b border-gray-200 pb-6 mb-6 flex flex-col items-center">
+            <!-- Logo Added Here -->
+            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-accentGold shadow-md mb-3 bg-white flex items-center justify-center">
+                <img src="10.png" alt="لوجو مطعم سمك ابن حميدو" class="w-full h-full object-cover">
+            </div>
             <h1 class="text-2xl md:text-3xl font-black text-oceanBlue mb-1">مطعم سمك ابن حميدو</h1>
             <p class="text-sm text-gray-500">العاشر من رمضان - أصل الأكل البحري</p>
             <div class="mt-4 inline-block bg-blue-50 text-oceanBlue px-4 py-1.5 rounded-full text-sm font-bold">
@@ -51,20 +55,44 @@
             <!-- Rendered via JS -->
         </div>
 
-        <!-- Totals Summary (Weight removed) -->
-        <div class="border-t border-gray-200 pt-4 space-y-2 text-sm md:text-base mb-8">
+        <!-- Totals Summary -->
+        <div class="border-t border-gray-200 pt-4 space-y-2 text-sm md:text-base mb-6">
             <div class="flex justify-between text-lg font-black text-gray-900 border-t border-gray-100 pt-2">
                 <span>إجمالي المبلغ المطلوب:</span>
                 <span id="invoice-total-price" class="text-accentGold text-xl">0 ج.م</span>
             </div>
         </div>
 
+        <!-- Customer Details Form -->
+        <div class="bg-gray-50 p-4 md:p-6 rounded-2xl border border-gray-200 space-y-4 mb-6">
+            <h3 class="font-bold text-oceanBlue text-base border-b pb-2">بيانات التوصيل</h3>
+            
+            <!-- Name -->
+            <div>
+                <label class="block text-xs font-bold text-oceanBlue mb-1">الاسم</label>
+                <input type="text" id="customer-name" oninput="validateForm()" placeholder="أدخل اسمك الكريم..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-oceanBlue text-sm bg-white">
+            </div>
+
+            <!-- Phone -->
+            <div>
+                <label class="block text-xs font-bold text-oceanBlue mb-1">رقم التليفون (11 رقم)</label>
+                <input type="tel" id="customer-phone" maxlength="11" oninput="validateForm()" placeholder="مثال: 01012345678" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-oceanBlue text-sm bg-white">
+                <span id="phone-error" class="text-xs text-red-500 mt-1 hidden">يجب أن يتكون رقم التليفون من 11 رقماً ويبدأ بـ 0</span>
+            </div>
+
+            <!-- Address -->
+            <div>
+                <label class="block text-xs font-bold text-oceanBlue mb-1">العنوان بالتفصيل</label>
+                <textarea id="customer-address" rows="3" oninput="validateForm()" placeholder="المنطقة، الشارع، رقم الحلاقة أو العمارة، الطابق..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-oceanBlue text-sm bg-white"></textarea>
+            </div>
+        </div>
+
         <!-- Actions -->
         <div class="flex gap-4">
-            <button onclick="window.print()" class="flex-1 bg-oceanBlue hover:bg-deepNavy text-white font-bold py-3 rounded-xl transition-all shadow-md text-center">
-                طباعة الفاتورة
+            <button id="whatsapp-btn" onclick="sendOrderWhatsApp()" disabled class="flex-1 bg-gray-300 text-gray-500 font-bold py-3 rounded-xl transition-all shadow-md text-center flex items-center justify-center gap-2 cursor-not-allowed">
+                <span>طلب الأوردر</span>
             </button>
-            <button onclick="window.location.href='index.html'" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition-all text-center">
+            <button onclick="goBackToMenu()" class="flex-1 bg-oceanBlue hover:bg-deepNavy text-white font-bold py-3 rounded-xl transition-all shadow-md text-center">
                 العودة للمنيو
             </button>
         </div>
@@ -72,6 +100,8 @@
     </div>
 
     <script>
+        let globalCartData = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             const cartDataStr = localStorage.getItem('ibnHameedoCart');
             const container = document.getElementById('invoice-items');
@@ -82,21 +112,30 @@
                 return;
             }
 
-            const cartData = JSON.parse(cartDataStr);
-            if (cartData.items.length === 0) {
+            globalCartData = JSON.parse(cartDataStr);
+            if (!globalCartData.items || globalCartData.items.length === 0) {
                 container.innerHTML = '<p class="text-center text-gray-500 py-8">لا توجد أصناف مضافة في السلة حالياً.</p>';
                 return;
             }
 
-            let html = '<table class="w-full text-right border-collapse"><thead><tr class="border-b border-gray-200 text-xs text-gray-500 pb-2"><th class="pb-2">الصنف والوزن</th><th class="pb-2 text-center">طريقة الطهي</th><th class="pb-2 text-left">السعر</th></tr></thead><tbody class="divide-y divide-gray-100 text-sm">';
+            let html = `
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-xs text-gray-500 pb-2">
+                            <th class="pb-2 w-2/5">الصنف</th>
+                            <th class="pb-2 text-center w-1/5 text-oceanBlue font-bold">الوزن</th>
+                            <th class="pb-2 text-center w-1/5">النوع</th>
+                            <th class="pb-2 text-left w-1/5">السعر</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 text-sm">
+            `;
             
-            cartData.items.forEach(item => {
+            globalCartData.items.forEach(item => {
                 html += `
                     <tr class="py-3">
-                        <td class="py-3 font-bold text-gray-900">
-                            ${item.name}
-                            <span class="block text-xs font-normal text-gray-500">${item.weight} جرام</span>
-                        </td>
+                        <td class="py-3 font-bold text-gray-900">${item.name}</td>
+                        <td class="py-3 text-center text-xs font-semibold text-gray-600">${item.weight} جم</td>
                         <td class="py-3 text-center text-xs font-semibold text-oceanBlue bg-blue-50/50 rounded">${item.methods.join(', ') || 'عادي'}</td>
                         <td class="py-3 text-left font-black text-accentGold">${item.price.toFixed(2)} ج.م</td>
                     </tr>
@@ -106,8 +145,68 @@
             html += '</tbody></table>';
             container.innerHTML = html;
 
-            priceDisplay.textContent = `${cartData.grandTotal.toFixed(2)} ج.م`;
+            priceDisplay.textContent = `${globalCartData.grandTotal.toFixed(2)} ج.م`;
+            validateForm();
         });
+
+        // دالة العودة للمنيو مع ضمان بقاء محتويات السلة كما هي دون حذف
+        function goBackToMenu() {
+            window.location.href = 'index.html';
+        }
+
+        function validateForm() {
+            const name = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const address = document.getElementById('customer-address').value.trim();
+            const phoneError = document.getElementById('phone-error');
+            const whatsappBtn = document.getElementById('whatsapp-btn');
+
+            const phoneRegex = /^0[0-9]{10}$/;
+            const isPhoneValid = phoneRegex.test(phone);
+
+            if (phone.length > 0 && !isPhoneValid) {
+                phoneError.classList.remove('hidden');
+            } else {
+                phoneError.classList.add('hidden');
+            }
+
+            if (name !== '' && isPhoneValid && address !== '') {
+                whatsappBtn.disabled = false;
+                whatsappBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                whatsappBtn.classList.add('bg-green-600', 'hover:bg-green-700', 'text-white', 'shadow-md');
+            } else {
+                whatsappBtn.disabled = true;
+                whatsappBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'text-white', 'shadow-md');
+                whatsappBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            }
+        }
+
+        function sendOrderWhatsApp() {
+            const name = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const address = document.getElementById('customer-address').value.trim();
+
+            if (!globalCartData || !globalCartData.items || globalCartData.items.length === 0) {
+                alert('لا توجد أصناف في السلة لإرسالها.');
+                return;
+            }
+
+            let message = `🛒 *طلب أوردر جديد - مطعم سمك ابن حميدو*\n\n`;
+            message += `👤 *الاسم:* ${name}\n`;
+            message += `📞 *التليفون:* ${phone}\n`;
+            message += `📍 *العنوان:* ${address}\n\n`;
+            message += `📋 *الأصناف المطلوبة:*\n`;
+
+            globalCartData.items.forEach((item, index) => {
+                message += `${index + 1}- ${item.name} (${item.weight} جم) - النوع: ${item.methods.join(', ') || 'عادي'} - السعر: ${item.price.toFixed(2)} ج.م\n`;
+            });
+            
+            message += `\n💰 *إجمالي المبلغ المطلوب:* ${globalCartData.grandTotal.toFixed(2)} ج.م`;
+
+            const phoneNumber = "201253583231";
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+        }
     </script>
 </body>
 </html>
