@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+body {
+    font-family: 'Cairo', sans-serif;
+    background-color: #f8f9fa;
+    color: #1a252f;
+}
+
+.hero-bg {
+    background: linear-gradient(rgba(8, 35, 63, 0.85), rgba(15, 76, 129, 0.9)), url('11.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.category-tab.active {
+    background-color: #0f4c81 !important;
+    color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(15, 76, 129, 0.3);
+}

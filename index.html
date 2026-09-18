@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منيو مطعم سمك ابن حميدو - العاشر من رمضان</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        oceanBlue: '#0f4c81',
+                        deepNavy: '#08233f',
+                        seaCyan: '#00b4d8',
+                        accentGold: '#fca311',
+                        sandBg: '#f8f9fa'
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .hero-bg {
+            background: linear-gradient(rgba(8, 35, 63, 0.85), rgba(15, 76, 129, 0.9)), url('11.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .category-tab.active {
+            background-color: #0f4c81 !important;
+            color: white !important;
+            box-shadow: 0 4px 6px -1px rgba(15, 76, 129, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-sandBg text-gray-800 antialiased">
+
+    <!-- Header & Hero Section -->
+    <header class="hero-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-8 flex flex-col items-center text-center">
+            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-accentGold shadow-2xl mb-4 bg-white flex items-center justify-center">
+                <img src="10.png" alt="لوجو مطعم سمك ابن حميدو" class="w-full h-full object-cover">
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black mb-2 text-accentGold tracking-wide">مطعم سمك ابن حميدو</h1>
+            <p class="text-lg md:text-xl font-semibold mb-1 text-seaCyan">أصل الأكل البحري - العاشر من رمضان</p>
+            <p class="text-sm text-gray-200 max-w-xl mx-auto mb-6">طازج يومياً من البحر إلى طبقك .. جودة المكونات وأصالة الطعم</p>
+            
+            <div class="flex flex-wrap justify-center gap-4 text-sm font-medium">
+                <span class="bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">العاشر من رمضان، مصر</span>
+                <span class="bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">خدمة الدليفري والتايكواى</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation / Categories Tabs (No Icons) -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-md py-4 transition-all">
+        <div id="categoriesNav" class="container mx-auto px-4 flex overflow-x-auto space-x-3 space-x-reverse scrollbar-none justify-start md:justify-center">
+            <!-- Dynamically generated -->
+        </div>
+    </nav>
+
+    <!-- Main Menu Content Container -->
+    <main class="container mx-auto px-4 py-12">
+        <div id="menu-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Rendered via JavaScript -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-deepNavy text-white py-8 border-t border-oceanBlue/30">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-xl font-bold mb-2 text-accentGold">مطعم سمك ابن حميدو - العاشر من رمضان</h2>
+            <p class="text-gray-400 text-sm mb-4">نسعد بزيارتكم وتقديم أشهى المأكولات البحرية الطازجة يومياً.</p>
+            <p class="text-xs text-gray-500">© 2026 جميع الحقوق محفوظة - ابن حميدو</p>
+        </div>
+    </footer>
+
+    <!-- Direct Embedded Data matching menu.xlsx -->
+    <script>
+        const menuData = [
+            {
+                "category": "الأسماك",
+                "nameAr": "سمك بلطي (ردة)",
+                "nameEng": "Bolti Fish (Radda)",
+                "desc": "سمك بلطي طازج مشوي بالردة على الطريقة السواحلية الأصيلة",
+                "price": 150,
+                "unit": "ج.م / كيلو",
+                "status": "متوفر"
+            },
+            {
+                "category": "الأسماك",
+                "nameAr": "سمك بلطي (زيت وليمون)",
+                "nameEng": "Bolti Fish (Oil & Lemon)",
+                "desc": "سمك بلطي طازج بالزيت والليمون والتوابل الخاصة بالفرن",
+                "price": 150,
+                "unit": "ج.م / كيلو",
+                "status": "متوفر"
+            },
+            {
+                "category": "الأسماك",
+                "nameAr": "سمك بلطي (مقلي)",
+                "nameEng": "Fried Bolti Fish",
+                "desc": "سمك بلطي طازج مقلي ومقرمش بخلطة ابن حميدو السرية",
+                "price": 150,
+                "unit": "ج.م / كيلو",
+                "status": "متوفر"
+            },
+            {
+                "category": "الأسماك",
+                "nameAr": "سمك بلطي (صينية أبيض)",
+                "nameEng": "Bolti White Tray",
+                "desc": "سمك بلطي طازج في صينية بالبصل والصوص الأبيض بالفرن",
+                "price": 150,
+                "unit": "ج.م / كيلو",
+                "status": "متوفر"
+            },
+            {
+                "category": "الأسماك",
+                "nameAr": "سمك بلطي (صينية أحمر)",
+                "nameEng": "Bolti Red Tray",
+                "desc": "سمك بلطي طازج في صينية بالصلصة الحمراء والفلفل بالفرن",
+                "price": 150,
+                "unit": "ج.م / كيلو",
+                "status": "متوفر"
+            },
+            {
+                "category": "الجمبري",
+                "nameAr": "جمبري وسط",
+                "nameEng": "Medium Shrimp",
+                "desc": "جمبري وسط طازج يجهز بالخلطة أو المقلي أو الطاجن",
+                "price": 500,
+                "unit": "ج.م / كيلو",
+                "status": "متوفر"
+            },
+            {
+                "category": "الجمبري",
+                "nameAr": "جمبري كبير",
+                "nameEng": "Large Shrimp",
+                "desc": "جمبري كبير طازج يجهز بالخلطة أو المقلي أو الطاجن",
+                "price": 600,
+                "unit": "ج.م / كيلو",
+                "status": "متوفر"
+            },
+            {
+                "category": "الجمبري",
+                "nameAr": "جمبري جامبو",
+                "nameEng": "Jumbo Shrimp",
+                "desc": "جمبري جامبو فاخر طازج يجهز بالخلطة أو المقلي أو الطاجن",
+                "price": 750,
+                "unit": "ج.م / كيلو",
+                "status": "متوفر"
+            }
+        ];
+
+        let currentCategory = 'all';
+
+        function initMenu() {
+            buildCategoryTabs();
+            renderMenu(currentCategory);
+        }
+
+        function buildCategoryTabs() {
+            const navContainer = document.getElementById('categoriesNav');
+            if (!navContainer) return;
+
+            navContainer.innerHTML = `
+                <button onclick="filterCategory('all')" id="btn-all" class="category-tab active px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white">
+                    الكل
+                </button>
+            `;
+
+            const categories = [...new Set(menuData.map(item => item.category))];
+
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                const btnId = `btn-${cat.replace(/\s+/g, '-')}`;
+                btn.id = btnId;
+                btn.className = "category-tab px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white";
+                btn.textContent = cat;
+                btn.onclick = () => filterCategory(cat);
+                navContainer.appendChild(btn);
+            });
+        }
+
+        function renderMenu(categoryToFilter = 'all') {
+            const container = document.getElementById('menu-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const filteredItems = categoryToFilter === 'all' 
+                ? menuData 
+                : menuData.filter(item => item.category === categoryToFilter);
+
+            if (filteredItems.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <p>عذراً، لا توجد أصناف متاحة في هذا القسم حالياً.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col justify-between group";
+                
+                card.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="text-xs font-bold text-oceanBlue bg-blue-50 px-3 py-1 rounded-full mb-2 inline-block">${item.category}</span>
+                                <h3 class="text-xl font-bold text-gray-900 group-hover:text-oceanBlue transition-colors">${item.nameAr}</h3>
+                                <p class="text-xs text-gray-400 italic font-medium">${item.nameEng}</p>
+                            </div>
+                            <div class="text-left">
+                                <span class="text-lg font-black text-accentGold">${item.price} <small class="text-xs text-gray-500">${item.unit || 'ج.م'}</small></span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mt-3 leading-relaxed whitespace-pre-line">${item.desc}</p>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center text-xs">
+                        <span class="text-emerald-600 font-semibold">${item.status || 'متوفر'}</span>
+                        <span class="text-gray-400 font-medium">ابن حميدو</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active', 'bg-oceanBlue', 'text-white');
+                tab.classList.add('bg-gray-100', 'text-gray-700');
+            });
+
+            if (category === 'all') {
+                const btnAll = document.getElementById('btn-all');
+                if (btnAll) {
+                    btnAll.classList.remove('bg-gray-100', 'text-gray-700');
+                    btnAll.classList.add('active');
+                }
+            } else {
+                const btnId = `btn-${category.replace(/\s+/g, '-')}`;
+                const activeBtn = document.getElementById(btnId);
+                if (activeBtn) {
+                    activeBtn.classList.remove('bg-gray-100', 'text-gray-700');
+                    activeBtn.classList.add('active');
+                }
+            }
+
+            renderMenu(category);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initMenu();
+        });
+    </script>
+</body>
+</html>
