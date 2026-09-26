@@ -6,8 +6,6 @@
     <title>فاتورة الطلب - مطعم سمك ابن حميدو</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html2canvas Library to capture invoice as image -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Google Fonts Cairo -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script>
@@ -37,7 +35,7 @@
 </head>
 <body class="bg-sandBg text-gray-800 antialiased p-4 md:p-8">
 
-    <!-- حاضنة الفاتورة التي سيتم التقاطها كصورة -->
+    <!-- حاضنة الفاتورة لعرضها للعميل على الشاشة -->
     <div id="invoice-box" class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 md:p-10">
         
         <!-- Header -->
@@ -101,6 +99,9 @@
 
     </div>
 
+    <!-- Canvas مخفي لرسم الفاتورة بدقة وتنسيق ثابت وإرسالها كصورة -->
+    <canvas id="invoice-canvas" width="800" style="display: none;"></canvas>
+
     <script>
         let globalCartData = null;
 
@@ -154,12 +155,10 @@
             validateForm();
         });
 
-        // دالة العودة للمنيو مع الحفاظ على بيانات السلة
         function goBackToMenu() {
             window.location.href = 'index.html';
         }
 
-        // التحقق من صحة المدخلات لتفعيل زر الإرسال
         function validateForm() {
             const name = document.getElementById('customer-name').value.trim();
             const phone = document.getElementById('customer-phone').value.trim();
@@ -187,71 +186,189 @@
             }
         }
 
-        // دالة إرسال الفاتورة كصورة وتفاصيل للبوت الخاص بك مباشرة
+        // دالة رسم وتوليد الفاتورة كصورة منسقة بدقة برمجياً ثم إرسالها للبوت
         function sendOrderToTelegramBot() {
-            const invoiceElement = document.getElementById('invoice-box');
             const telegramBtn = document.getElementById('telegram-btn');
             const originalText = telegramBtn.innerHTML;
             
-            telegramBtn.innerHTML = '<span>جاري إرسال الفاتورة للبوت... ⏳</span>';
+            telegramBtn.innerHTML = '<span>جاري تجهيز الفاتورة وإرسالها... ⏳</span>';
             telegramBtn.disabled = true;
 
-            // 1. التقاط الفاتورة كصورة بدقة عالية
-            html2canvas(invoiceElement, {
-                scale: 2,
-                useCORS: true
-            }).then(canvas => {
-                canvas.toBlob(blob => {
-                    const name = document.getElementById('customer-name').value.trim();
-                    const phone = document.getElementById('customer-phone').value.trim();
-                    const address = document.getElementById('customer-address').value.trim();
-                    const total = globalCartData.grandTotal.toFixed(2);
+            const name = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const address = document.getElementById('customer-address').value.trim();
+            const items = globalCartData.items;
+            const grandTotal = globalCartData.grandTotal;
 
-                    // نص التوصيف الذي سيرافق الصورة في شات تليجرام
-                    let caption = `🛒 *طلب جديد - مطعم سمك ابن حميدو*\n\n`;
-                    caption += `👤 *الاسم:* ${name}\n`;
-                    caption += `📞 *التليفون:* ${phone}\n`;
-                    caption += `📍 *العنوان:* ${address}\n`;
-                    caption += `💰 *الإجمالي:* ${total} ج.م`;
+            // حساب طول الصورة بناءً على عدد الأصناف لتكون منسقة تماماً
+            const canvas = document.getElementById('invoice-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let baseHeight = 450 + (items.length * 55);
+            canvas.height = baseHeight;
 
-                    // بيانات بوت إشعارات ميجا جرافيك الخاصة بك
-                    const botToken = '8990133528:AAF-Pb82_knno-g_pYxE3qBeEH6_8FoCtvQ'; 
-                    const chatId = '5847571012';
+            // 1. رسم خلفية بيضاء ونظيفة للفاتورة
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                    const formData = new FormData();
-                    formData.append('chat_id', chatId);
-                    formData.append('photo', blob, `invoice-${phone}.png`);
-                    formData.append('caption', caption);
-                    formData.append('parse_mode', 'Markdown');
+            // 2. إطار خارجي مرتب
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
 
-                    // 2. رفع الصورة وإرسالها مباشرة عبر Telegram Bot API
-                    fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        telegramBtn.innerHTML = originalText;
-                        telegramBtn.disabled = false;
-                        
-                        if (data.ok) {
-                            alert('تم إرسال الفاتورة وصورة الأوردر بنجاح إلى بوت تليجرام الخاص بك! ✅');
-                            // يمكنك مسح السلة هنا إذا أردت: localStorage.removeItem('ibnHameedoCart');
-                            // وتوجيهه للمنيو أو صفحة شكر
-                        } else {
-                            alert('حدث خطأ أثناء الإرسال للبوت، تأكد من بيانات البوت.');
-                            console.error(data);
-                        }
-                    })
-                    .catch(error => {
-                        telegramBtn.innerHTML = originalText;
-                        telegramBtn.disabled = false;
-                        console.error('Error:', error);
-                        alert('فشل الاتصال بسيرفر تليجرام.');
-                    });
+            // 3. رأس الفاتورة (اسم المطعم والعنوان)
+            ctx.fillStyle = '#0f4c81'; // اللون الأزرق البحري
+            ctx.font = '900 28px Cairo, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('مطعم سمك ابن حميدو', canvas.width / 2, 70);
 
-                }, 'image/png');
+            ctx.fillStyle = '#64748b';
+            ctx.font = '600 16px Cairo, sans-serif';
+            ctx.fillText('العاشر من رمضان - أصل الأكل البحري', canvas.width / 2, 105);
+
+            // شريط العنوان الفرعي
+            ctx.fillStyle = '#eff6ff';
+            ctx.roundRect(canvas.width / 2 - 100, 125, 200, 32, 16);
+            ctx.fill();
+            ctx.fillStyle = '#0f4c81';
+            ctx.font = '700 14px Cairo, sans-serif';
+            ctx.fillText('فاتورة طلب عميل', canvas.width / 2, 147);
+
+            // 4. خط فاصل
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(50, 180);
+            ctx.lineTo(canvas.width - 50, 180);
+            ctx.stroke();
+
+            // 5. جدول الأصناف (عناوين الأعمدة)
+            ctx.fillStyle = '#64748b';
+            ctx.font = '700 13px Cairo, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('الصنف وملاحظات الطهي', 70, 215);
+            ctx.textAlign = 'center';
+            ctx.fillText('الوزن / النوع', 480, 215);
+            ctx.textAlign = 'left';
+            ctx.fillText('السعر', canvas.width - 70, 215);
+
+            // خط تحت العناوين
+            ctx.beginPath();
+            ctx.moveTo(50, 230);
+            ctx.lineTo(canvas.width - 50, 230);
+            ctx.stroke();
+
+            // 6. سرد الأصناف
+            let startY = 265;
+            ctx.font = '700 15px Cairo, sans-serif';
+
+            items.forEach((item, index) => {
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#0f172a';
+                ctx.fillText(`${index + 1}. ${item.name}`, 70, startY);
+
+                if (item.customNote) {
+                    ctx.fillStyle = '#d97706'; // لون ذهبي للملاحظة
+                    ctx.font = '600 12px Cairo, sans-serif';
+                    ctx.fillText(`ملاحظة: ${item.customNote}`, 70, startY + 20);
+                    ctx.font = '700 15px Cairo, sans-serif';
+                }
+
+                // الوزن والنوع
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#475569';
+                ctx.font = '600 13px Cairo, sans-serif';
+                let typeText = `${item.weight} جم (${item.methods.join(', ') || 'عادي'})`;
+                ctx.fillText(typeText, 480, startY + 10);
+
+                // السعر
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#d97706';
+                ctx.font = '900 15px Cairo, sans-serif';
+                ctx.fillText(`${item.price.toFixed(2)} ج.م`, canvas.width - 70, startY + 10);
+
+                startY += item.customNote ? 55 : 45;
             });
+
+            // 7. خط فاصل قبل الإجمالي
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.beginPath();
+            ctx.moveTo(50, startY + 10);
+            ctx.lineTo(canvas.width - 50, startY + 10);
+            ctx.stroke();
+
+            // 8. الإجمالي النهائي
+            startY += 45;
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '900 18px Cairo, sans-serif';
+            ctx.fillText('إجمالي المبلغ المطلوب:', 70, startY);
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#d97706';
+            ctx.font = '900 20px Cairo, sans-serif';
+            ctx.fillText(`${grandTotal.toFixed(2)} ج.م`, canvas.width - 70, startY);
+
+            // 9. صندوق بيانات التوصيل داخل الصورة
+            startY += 40;
+            ctx.fillStyle = '#f8fafc';
+            ctx.roundRect(50, startY, canvas.width - 100, 110, 12);
+            ctx.fill();
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.stroke();
+
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#0f4c81';
+            ctx.font = '700 14px Cairo, sans-serif';
+            ctx.fillText('بيانات التوصيل:', 75, startY + 25);
+
+            ctx.fillStyle = '#334155';
+            ctx.font = '600 13px Cairo, sans-serif';
+            ctx.fillText(`الاسم: ${name}`, 75, startY + 50);
+            ctx.fillText(`التليفون: ${phone}`, 75, startY + 75);
+            ctx.fillText(`العنوان: ${address}`, 75, startY + 98);
+
+            // 10. تحويل الـ Canvas إلى ملف صورة (Blob) وإرساله لتليجرام
+            canvas.toBlob(blob => {
+                let caption = `🛒 *طلب جديد - مطعم سمك ابن حميدو*\n\n`;
+                caption += `👤 *الاسم:* ${name}\n`;
+                caption += `📞 *التليفون:* ${phone}\n`;
+                caption += `📍 *العنوان:* ${address}\n`;
+                caption += `💰 *الإجمالي:* ${grandTotal.toFixed(2)} ج.م`;
+
+                const botToken = '8990133528:AAF-Pb82_knno-g_pYxE3qBeEH6_8FoCtvQ'; 
+                const chatId = '5847571012';
+
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('photo', blob, `invoice-${phone}.png`);
+                formData.append('caption', caption);
+                formData.append('parse_mode', 'Markdown');
+
+                fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    telegramBtn.innerHTML = originalText;
+                    telegramBtn.disabled = false;
+                    
+                    if (data.ok) {
+                        alert('تم إرسال الفاتورة كصورة منسقة وصحيحة بنجاح إلى بوت تليجرام! ✅');
+                    } else {
+                        alert('حدث خطأ أثناء الإرسال للبوت.');
+                        console.error(data);
+                    }
+                })
+                .catch(error => {
+                    telegramBtn.innerHTML = originalText;
+                    telegramBtn.disabled = false;
+                    console.error('Error:', error);
+                    alert('فشل الاتصال بسيرفر تليجرام.');
+                });
+
+            }, 'image/png');
         }
     </script>
 </body>
