@@ -6,6 +6,8 @@
     <title>فاتورة الطلب - مطعم سمك ابن حميدو</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas Library to capture invoice as image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Google Fonts Cairo -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script>
@@ -35,11 +37,11 @@
 </head>
 <body class="bg-sandBg text-gray-800 antialiased p-4 md:p-8">
 
-    <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 md:p-10">
+    <!-- حاضنة الفاتورة التي سيتم التقاطها كصورة -->
+    <div id="invoice-box" class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 md:p-10">
         
         <!-- Header -->
         <div class="text-center border-b border-gray-200 pb-6 mb-6 flex flex-col items-center">
-            <!-- Logo Added Here -->
             <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-accentGold shadow-md mb-3 bg-white flex items-center justify-center">
                 <img src="10.png" alt="لوجو مطعم سمك ابن حميدو" class="w-full h-full object-cover">
             </div>
@@ -83,14 +85,14 @@
             <!-- Address -->
             <div>
                 <label class="block text-xs font-bold text-oceanBlue mb-1">العنوان بالتفصيل</label>
-                <textarea id="customer-address" rows="3" oninput="validateForm()" placeholder="المنطقة، الشارع، رقم الحلاقة أو العمارة، الطابق..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-oceanBlue text-sm bg-white"></textarea>
+                <textarea id="customer-address" rows="3" oninput="validateForm()" placeholder="المنطقة، الشارع، رقم العمارة، الطابق..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-oceanBlue text-sm bg-white"></textarea>
             </div>
         </div>
 
         <!-- Actions -->
         <div class="flex gap-4">
-            <button id="whatsapp-btn" onclick="sendOrderWhatsApp()" disabled class="flex-1 bg-gray-300 text-gray-500 font-bold py-3 rounded-xl transition-all shadow-md text-center flex items-center justify-center gap-2 cursor-not-allowed">
-                <span>طلب الأوردر</span>
+            <button id="telegram-btn" onclick="sendOrderToTelegramBot()" disabled class="flex-1 bg-gray-300 text-gray-500 font-bold py-3 rounded-xl transition-all shadow-md text-center flex items-center justify-center gap-2 cursor-not-allowed">
+                <span>إرسال الفاتورة عبر تليجرام 🚀</span>
             </button>
             <button onclick="goBackToMenu()" class="flex-1 bg-oceanBlue hover:bg-deepNavy text-white font-bold py-3 rounded-xl transition-all shadow-md text-center">
                 العودة للمنيو
@@ -152,17 +154,18 @@
             validateForm();
         });
 
-        // دالة العودة للمنيو مع ضمان بقاء محتويات السلة كما هي دون حذف
+        // دالة العودة للمنيو مع الحفاظ على بيانات السلة
         function goBackToMenu() {
             window.location.href = 'index.html';
         }
 
+        // التحقق من صحة المدخلات لتفعيل زر الإرسال
         function validateForm() {
             const name = document.getElementById('customer-name').value.trim();
             const phone = document.getElementById('customer-phone').value.trim();
             const address = document.getElementById('customer-address').value.trim();
             const phoneError = document.getElementById('phone-error');
-            const whatsappBtn = document.getElementById('whatsapp-btn');
+            const telegramBtn = document.getElementById('telegram-btn');
 
             const phoneRegex = /^0[0-9]{10}$/;
             const isPhoneValid = phoneRegex.test(phone);
@@ -174,45 +177,81 @@
             }
 
             if (name !== '' && isPhoneValid && address !== '') {
-                whatsappBtn.disabled = false;
-                whatsappBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
-                whatsappBtn.classList.add('bg-green-600', 'hover:bg-green-700', 'text-white', 'shadow-md');
+                telegramBtn.disabled = false;
+                telegramBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                telegramBtn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white', 'shadow-md');
             } else {
-                whatsappBtn.disabled = true;
-                whatsappBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'text-white', 'shadow-md');
-                whatsappBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                telegramBtn.disabled = true;
+                telegramBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white', 'shadow-md');
+                telegramBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
             }
         }
 
-        function sendOrderWhatsApp() {
-            const name = document.getElementById('customer-name').value.trim();
-            const phone = document.getElementById('customer-phone').value.trim();
-            const address = document.getElementById('customer-address').value.trim();
-
-            if (!globalCartData || !globalCartData.items || globalCartData.items.length === 0) {
-                alert('لا توجد أصناف في السلة لإرسالها.');
-                return;
-            }
-
-            let message = `🛒 *طلب أوردر جديد - مطعم سمك ابن حميدو*\n\n`;
-            message += `👤 *الاسم:* ${name}\n`;
-            message += `📞 *التليفون:* ${phone}\n`;
-            message += `📍 *العنوان:* ${address}\n\n`;
-            message += `📋 *الأصناف المطلوبة:*\n`;
-
-            globalCartData.items.forEach((item, index) => {
-                message += `${index + 1}- ${item.name} (${item.weight} جم) - النوع: ${item.methods.join(', ') || 'عادي'}`;
-                if (item.customNote) {
-                    message += `\n   └ 📝 ملاحظة: ${item.customNote}`;
-                }
-                message += ` - السعر: ${item.price.toFixed(2)} ج.م\n`;
-            });
+        // دالة إرسال الفاتورة كصورة وتفاصيل للبوت الخاص بك مباشرة
+        function sendOrderToTelegramBot() {
+            const invoiceElement = document.getElementById('invoice-box');
+            const telegramBtn = document.getElementById('telegram-btn');
+            const originalText = telegramBtn.innerHTML;
             
-            message += `\n💰 *إجمالي المبلغ المطلوب:* ${globalCartData.grandTotal.toFixed(2)} ج.م`;
+            telegramBtn.innerHTML = '<span>جاري إرسال الفاتورة للبوت... ⏳</span>';
+            telegramBtn.disabled = true;
 
-            const phoneNumber = "201283853231";
-            const encodedMessage = encodeURIComponent(message);
-            window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+            // 1. التقاط الفاتورة كصورة بدقة عالية
+            html2canvas(invoiceElement, {
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                canvas.toBlob(blob => {
+                    const name = document.getElementById('customer-name').value.trim();
+                    const phone = document.getElementById('customer-phone').value.trim();
+                    const address = document.getElementById('customer-address').value.trim();
+                    const total = globalCartData.grandTotal.toFixed(2);
+
+                    // نص التوصيف الذي سيرافق الصورة في شات تليجرام
+                    let caption = `🛒 *طلب جديد - مطعم سمك ابن حميدو*\n\n`;
+                    caption += `👤 *الاسم:* ${name}\n`;
+                    caption += `📞 *التليفون:* ${phone}\n`;
+                    caption += `📍 *العنوان:* ${address}\n`;
+                    caption += `💰 *الإجمالي:* ${total} ج.م`;
+
+                    // بيانات بوت إشعارات ميجا جرافيك الخاصة بك
+                    const botToken = '8990133528:AAF-Pb82_knno-g_pYxE3qBeEH6_8FoCtvQ'; 
+                    const chatId = '5847571012';
+
+                    const formData = new FormData();
+                    formData.append('chat_id', chatId);
+                    formData.append('photo', blob, `invoice-${phone}.png`);
+                    formData.append('caption', caption);
+                    formData.append('parse_mode', 'Markdown');
+
+                    // 2. رفع الصورة وإرسالها مباشرة عبر Telegram Bot API
+                    fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        telegramBtn.innerHTML = originalText;
+                        telegramBtn.disabled = false;
+                        
+                        if (data.ok) {
+                            alert('تم إرسال الفاتورة وصورة الأوردر بنجاح إلى بوت تليجرام الخاص بك! ✅');
+                            // يمكنك مسح السلة هنا إذا أردت: localStorage.removeItem('ibnHameedoCart');
+                            // وتوجيهه للمنيو أو صفحة شكر
+                        } else {
+                            alert('حدث خطأ أثناء الإرسال للبوت، تأكد من بيانات البوت.');
+                            console.error(data);
+                        }
+                    })
+                    .catch(error => {
+                        telegramBtn.innerHTML = originalText;
+                        telegramBtn.disabled = false;
+                        console.error('Error:', error);
+                        alert('فشل الاتصال بسيرفر تليجرام.');
+                    });
+
+                }, 'image/png');
+            });
         }
     </script>
 </body>
