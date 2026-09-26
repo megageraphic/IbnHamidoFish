@@ -32,7 +32,7 @@
         body {
             font-family: 'Cairo', sans-serif;
             background-color: #f8f9fa;
-            padding-bottom: 100px;
+            padding-bottom: 110px; /* مسافة كافية لكي لا يغطي الشريط السفلي المحتوى */
         }
         .hero-bg {
             background: linear-gradient(rgba(8, 35, 63, 0.85), rgba(15, 76, 129, 0.9)), url('11.png');
@@ -42,7 +42,7 @@
         .category-tab.active {
             background-color: #0f4c81 !important;
             color: white !important;
-            box-shadow: 0 2px 4px -1px rgba(15, 76, 129, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(15, 76, 129, 0.3);
         }
         .footer-btn {
             display: inline-flex;
@@ -59,76 +59,86 @@
             background-color: #fca311;
             color: #08233f;
         }
+        /* إخفاء شريط التمرير الافتراضي للتصنيفات مع الحفاظ على عمله باللمس */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="bg-sandBg text-gray-800 antialiased">
 
-    <!-- Header & Hero Section (Compact) -->
+    <!-- Header & Hero Section -->
     <header class="hero-bg text-white shadow-md">
-        <div class="container mx-auto px-4 py-5 flex flex-col items-center text-center">
-            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-accentGold shadow-lg mb-2 bg-white flex items-center justify-center">
+        <div class="container mx-auto px-4 py-6 md:py-8 flex flex-col items-center text-center">
+            <div class="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-accentGold shadow-lg mb-3 bg-white flex items-center justify-center">
                 <img src="10.png" alt="لوجو مطعم سمك ابن حميدو" class="w-full h-full object-cover">
             </div>
-            <h1 class="text-2xl md:text-3xl font-black mb-1 text-accentGold tracking-wide">مطعم سمك ابن حميدو</h1>
-            <p class="text-xs md:text-sm font-semibold mb-1 text-seaCyan">أصل الأكل البحري - العاشر من رمضان</p>
+            <h1 class="text-2xl md:text-4xl font-black mb-1 text-accentGold tracking-wide">مطعم سمك ابن حميدو</h1>
+            <p class="text-xs md:text-sm font-semibold mb-2 text-seaCyan">أصل الأكل البحري - العاشر من رمضان</p>
             
             <div class="flex flex-wrap justify-center gap-2 text-xs font-medium">
-                <span class="bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm border border-white/20">العاشر من رمضان، مصر</span>
+                <span class="bg-white/10 px-3.5 py-1.5 rounded-full backdrop-blur-sm border border-white/20">العاشر من رمضان، مصر</span>
             </div>
         </div>
     </header>
 
-    <!-- Navigation / Categories Tabs (Compact) -->
-    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm py-2.5 transition-all">
-        <div id="categoriesNav" class="container mx-auto px-4 flex overflow-x-auto space-x-2 space-x-reverse scrollbar-none justify-start md:justify-center">
-            <button onclick="filterCategory('الأسماك')" id="btn-الأسماك" class="category-tab active px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white">
+    <!-- Navigation / Categories Tabs -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm py-3 transition-all border-b border-gray-200">
+        <div id="categoriesNav" class="container mx-auto px-4 flex overflow-x-auto space-x-2.5 space-x-reverse no-scrollbar justify-start md:justify-center">
+            <button onclick="filterCategory('الأسماك')" id="btn-الأسماك" class="category-tab active px-5 py-2 rounded-full text-xs md:text-sm font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white cursor-pointer">
                 الأسماك
             </button>
-            <button onclick="filterCategory('الجمبري')" id="btn-الجمبري" class="category-tab px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white">
+            <button onclick="filterCategory('الجمبري')" id="btn-الجمبري" class="category-tab px-5 py-2 rounded-full text-xs md:text-sm font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white cursor-pointer">
                 الجمبري
             </button>
-            <button onclick="filterCategory('المقبلات والسلطات')" id="btn-المقبلات" class="category-tab px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white">
+            <button onclick="filterCategory('المقبلات والسلطات')" id="btn-المقبلات" class="category-tab px-5 py-2 rounded-full text-xs md:text-sm font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white cursor-pointer">
                 المقبلات والسلطات
             </button>
-            <button onclick="filterCategory('شوربة وطواجن')" id="btn-شوربة" class="category-tab px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white">
+            <button onclick="filterCategory('شوربة وطواجن')" id="btn-شوربة" class="category-tab px-5 py-2 rounded-full text-xs md:text-sm font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white cursor-pointer">
                 شوربة وطواجن
             </button>
-            <button onclick="filterCategory('مشروبات وحلويات')" id="btn-مشروبات" class="category-tab px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white">
+            <button onclick="filterCategory('مشروبات وحلويات')" id="btn-مشروبات" class="category-tab px-5 py-2 rounded-full text-xs md:text-sm font-bold transition-all whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-oceanBlue hover:text-white cursor-pointer">
                 مشروبات وحلويات
             </button>
         </div>
     </nav>
 
     <!-- Main Menu Content Container -->
-    <main class="container mx-auto px-4 py-6">
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
         <div id="menu-container" class="space-y-4">
             <!-- Rendered via JavaScript -->
         </div>
     </main>
 
-    <!-- Fixed Bottom Cart & Total Weight/Price Bar (Compact) -->
-    <div id="bottom-cart-bar" class="fixed bottom-0 left-0 right-0 z-50 bg-deepNavy/95 backdrop-blur-md text-white border-t border-oceanBlue/40 shadow-xl py-3 px-4 transition-all">
-        <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-                <div class="bg-accentGold text-deepNavy p-2 rounded-xl font-black text-sm shadow-inner">
-                    ⚖️
+    <!-- Fixed Bottom Cart & Total Weight/Price Bar -->
+    <div id="bottom-cart-bar" class="fixed bottom-0 left-0 right-0 z-50 bg-deepNavy/95 backdrop-blur-md text-white border-t border-oceanBlue/40 shadow-2xl py-3 px-4 transition-all">
+        <div class="container mx-auto max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center gap-3">
+                    <div class="bg-accentGold text-deepNavy p-2.5 rounded-xl font-black text-sm shadow-inner">
+                        ⚖️
+                    </div>
+                    <div>
+                        <p class="text-[10px] md:text-xs text-gray-300">مجموع الكمية / الوزن</p>
+                        <p id="total-weight-display" class="text-xs md:text-sm font-black text-seaCyan">0 جرام</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-[10px] text-gray-300">مجموع الكمية / الوزن</p>
-                    <p id="total-weight-display" class="text-xs md:text-sm font-black text-seaCyan">0 جرام</p>
-                </div>
-                <div class="border-r border-white/25 pr-3 mr-1">
-                    <p class="text-[10px] text-gray-300">إجمالي المبلغ المطلوب</p>
+                <div class="border-r border-white/25 pr-4 mr-2">
+                    <p class="text-[10px] md:text-xs text-gray-300">إجمالي المبلغ المطلوب</p>
                     <p id="total-price-display" class="text-xs md:text-sm font-black text-accentGold">0 ج.م</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                 <!-- زر حذف الطلبات وإفراغ السلة -->
-                <button onclick="clearCart()" class="bg-red-600 hover:bg-red-700 text-white px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center justify-center text-xs md:text-sm cursor-pointer" title="حذف كل الطلبات">
+                <button onclick="clearCart()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center justify-center text-xs md:text-sm cursor-pointer" title="حذف كل الطلبات">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
-                <button onclick="addToCart()" class="bg-accentGold hover:bg-amber-500 text-deepNavy font-black px-6 py-2 rounded-xl transition-all shadow-md flex items-center gap-1 text-xs md:text-sm cursor-pointer">
+                <button onclick="addToCart()" class="bg-accentGold hover:bg-amber-500 text-deepNavy font-black px-6 py-2.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 text-xs md:text-sm cursor-pointer flex-1 sm:flex-initial">
                     إضافة إلى السلة
                 </button>
             </div>
@@ -136,7 +146,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-deepNavy text-white py-6 border-t border-oceanBlue/30 mb-14 text-center">
+    <footer class="bg-deepNavy text-white py-6 border-t border-oceanBlue/30 mb-16 text-center">
         <div class="container mx-auto px-4 flex flex-col items-center justify-center gap-3">
             <p class="text-xs md:text-sm text-gray-300">&copy; جميع الحقوق محفوظة - مطعم اسماك ابن حميدو</p>
             <div class="footer-credits flex items-center justify-center gap-3 text-xs">
@@ -268,8 +278,8 @@
 
         let currentCategory = 'الأسماك';
         let userSelections = {};
+        let customNotes = {};
 
-        // استرجاع السلة والخيارات القديمة عند فتح الصفحة لأول مرة
         function loadSavedCartToSelections() {
             const savedCartStr = localStorage.getItem('ibnHameedoCart');
             if (savedCartStr) {
@@ -284,6 +294,9 @@
                                         if (cartItem.methods.includes(mName)) {
                                             const inputKey = `${item.nameAr}_${mName}`;
                                             userSelections[inputKey] = cartItem.weight;
+                                            if (cartItem.customNote) {
+                                                customNotes[inputKey] = cartItem.customNote;
+                                            }
                                         }
                                     });
                                 }
@@ -296,14 +309,16 @@
             }
         }
 
-        // دالة حذف وإفراغ السلة بالكامل
         function clearCart() {
             if (confirm('هل أنت متأكد من حذف جميع الطلبات وإفراغ السلة؟')) {
                 localStorage.removeItem('ibnHameedoCart');
                 userSelections = {};
+                customNotes = {};
                 
-                // تفريغ خانات الإدخال الظاهرة حالياً على الشاشة
                 document.querySelectorAll('.weight-input').forEach(input => {
+                    input.value = '';
+                });
+                document.querySelectorAll('.custom-note-input').forEach(input => {
                     input.value = '';
                 });
                 
@@ -322,7 +337,7 @@
 
             if (filteredItems.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500 text-xs">
+                    <div class="text-center py-12 text-gray-500 text-xs md:text-sm">
                         <p>عذراً، لا توجد أصناف متاحة في هذا القسم حالياً.</p>
                     </div>
                 `;
@@ -330,8 +345,8 @@
             }
 
             let sectionHTML = `
-                <div class="space-y-3">
-                    <div class="grid grid-cols-1 gap-3">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             `;
 
             filteredItems.forEach((item) => {
@@ -342,16 +357,23 @@
                         const methodPrice = typeof m === 'object' ? m.price : item.price;
                         const inputKey = `${item.nameAr}_${methodName}`;
                         const savedVal = userSelections[inputKey] || '';
+                        const savedNote = customNotes[inputKey] || '';
                         
                         methodsHTML += `
-                            <div class="bg-gray-50 hover:bg-blue-50/40 p-2.5 rounded-xl border border-gray-200 flex items-center justify-between gap-2 transition-all">
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-bold text-gray-800">${methodName}</span>
-                                    ${typeof m === 'object' ? `<span class="text-[10px] text-accentGold font-bold">${methodPrice} ج.م</span>` : ''}
+                            <div class="bg-gray-50 hover:bg-blue-50/30 p-3 rounded-xl border border-gray-200 flex flex-col gap-2.5 transition-all">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs md:text-sm font-bold text-gray-800">${methodName}</span>
+                                        ${typeof m === 'object' ? `<span class="text-[10px] md:text-xs text-accentGold font-bold">${methodPrice} ج.م</span>` : ''}
+                                    </div>
+                                    <div class="inline-flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 shadow-sm">
+                                        <input type="number" step="${item.category === 'الأسماك' || item.category === 'الجمبري' ? 50 : 1}" min="0" placeholder="0" value="${savedVal}" oninput="saveCurrentInputs(); calculateTotals()" class="weight-input w-16 md:w-20 text-center font-bold text-oceanBlue focus:outline-none bg-transparent text-xs md:text-sm" data-name="${item.nameAr}" data-method="${methodName}" data-price="${methodPrice}" data-category="${item.category}" data-unit="${item.unit || 'ج.م'}" data-key="${inputKey}">
+                                        <span class="text-[10px] md:text-xs font-bold text-oceanBlue">${item.category === 'الأسماك' || item.category === 'الجمبري' ? 'جم' : 'عدد'}</span>
+                                    </div>
                                 </div>
-                                <div class="inline-flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-sm">
-                                    <input type="number" step="${item.category === 'الأسماك' || item.category === 'الجمبري' ? 50 : 1}" min="0" placeholder="0" value="${savedVal}" oninput="saveCurrentInputs(); calculateTotals()" class="weight-input w-20 text-center font-bold text-oceanBlue focus:outline-none bg-transparent text-xs" data-name="${item.nameAr}" data-method="${methodName}" data-price="${methodPrice}" data-category="${item.category}" data-unit="${item.unit || 'ج.م'}" data-key="${inputKey}">
-                                    <span class="text-[10px] font-bold text-oceanBlue">${item.category === 'الأسماك' || item.category === 'الجمبري' ? 'جم' : 'عدد'}</span>
+                                <!-- خانة كتابة الإضافات اليدوية -->
+                                <div>
+                                    <input type="text" placeholder="إضافات يدوية (مثال: بدون ليمون، زيادة تسوية...)" value="${savedNote}" oninput="saveCurrentInputs()" class="custom-note-input w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] md:text-xs text-gray-700 focus:outline-none focus:border-oceanBlue shadow-sm transition-all" data-key="${inputKey}">
                                 </div>
                             </div>
                         `;
@@ -361,20 +383,22 @@
                 const displayUnit = item.unit ? item.unit : 'ج.م';
 
                 sectionHTML += `
-                    <div class="item-card bg-white rounded-2xl shadow-sm border border-gray-100 p-4 transition-all hover:shadow-md">
-                        <div class="flex justify-between items-center pb-2.5 border-b border-gray-100">
-                            <div>
-                                <h3 class="text-sm md:text-base font-black text-gray-900">${item.nameAr}</h3>
-                                <p class="text-[11px] text-gray-400">${item.desc}</p>
+                    <div class="item-card bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 transition-all hover:shadow-md flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start pb-3 border-b border-gray-100 gap-2">
+                                <div>
+                                    <h3 class="text-sm md:text-base font-black text-gray-900">${item.nameAr}</h3>
+                                    <p class="text-[11px] md:text-xs text-gray-400 mt-0.5">${item.desc}</p>
+                                </div>
+                                <div class="text-left shrink-0">
+                                    <span class="text-sm md:text-base font-black text-accentGold">${item.price} <small class="text-[10px] text-gray-500">${displayUnit}</small></span>
+                                </div>
                             </div>
-                            <div class="text-left">
-                                <span class="text-sm md:text-base font-black text-accentGold">${item.price} <small class="text-[10px] text-gray-500">${displayUnit}</small></span>
-                            </div>
-                        </div>
 
-                        <div class="pt-2.5">
-                            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2">
-                                ${methodsHTML}
+                            <div class="pt-3">
+                                <div class="grid grid-cols-1 gap-2">
+                                    ${methodsHTML}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -392,6 +416,14 @@
                 const key = input.getAttribute('data-key');
                 if (key) {
                     userSelections[key] = input.value;
+                }
+            });
+
+            const noteInputs = document.querySelectorAll('.custom-note-input');
+            noteInputs.forEach(input => {
+                const key = input.getAttribute('data-key');
+                if (key) {
+                    customNotes[key] = input.value;
                 }
             });
         }
@@ -492,6 +524,7 @@
                             name: matchedName,
                             weight: val,
                             methods: [matchedMethod],
+                            customNote: customNotes[key] || '',
                             price: itemPrice
                         });
                     }
